@@ -55,8 +55,8 @@ telescope({
         ]
       },
       methods: {
-        fromJSON: false,
-        toJSON: false,
+        fromJSON: true,
+        toJSON: true,
         encode: true,
         decode: true,
         fromPartial: true,

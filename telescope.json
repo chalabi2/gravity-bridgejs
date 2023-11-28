@@ -1,0 +1,62 @@
+{
+  "protoDirs": ["./proto"],
+  "outPath": "./src/codegen",
+  "options": {
+    "interfaces": {
+      "enabled": false,
+      "useByDefault": false,
+      "useUnionTypes": false
+    },
+    "prototypes": {
+      "enabled": true,
+      "parser": {
+        "keepCase": false
+      },
+      "methods": {
+        "fromJSON": true,
+        "toJSON": true,
+        "encode": true,
+        "decode": true,
+        "fromPartial": true,
+        "toAmino": true,
+        "fromAmino": true,
+        "fromProto": true,
+        "toProto": true
+      },
+      "addTypeUrlToObjects": true,
+      "addTypeUrlToDecoders": true,
+      "enableRegistryLoader": false,
+      "typingsFormat": {
+        "duration": "duration",
+        "timestamp": "timestamp",
+        "useExact": false,
+        "useDeepPartial": false,
+        "num64": "bigint",
+        "useTelescopeGeneratedType": true,
+        "customTypes": {
+          "useCosmosSDKDec": true
+        }
+      }
+    },
+    "bundle": {
+      "enabled": true
+    },
+    "stargateClients": {
+      "enabled": true,
+      "includeCosmosDefaultTypes": true
+    },
+    "aminoEncoding": {
+      "enabled": true
+    },
+    "lcdClients": {
+      "enabled": true
+    },
+    "rpcClients": {
+      "enabled": true,
+      "camelCase": true
+    },
+    "tsDisable": {
+      "patterns": ["**/client.ts"]
+    }
+  }
+}

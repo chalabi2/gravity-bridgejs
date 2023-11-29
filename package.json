@@ -1,6 +1,6 @@
 {
   "name": "@chalabi/gravity-bridgejs",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "telescope generated typescript typings for gravity-bridge",
   "author": "Joseph Chalabi <chalabi@chandrastation.com>",
   "homepage": "https://github.com/chalabi2/gravity-bridgejs#readme",

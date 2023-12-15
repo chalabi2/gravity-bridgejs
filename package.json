@@ -1,6 +1,6 @@
 {
   "name": "@chalabi/gravity-bridgejs",
-  "version": "0.0.5",
+  "version": "0.0.8",
   "description": "telescope generated typescript typings for gravity-bridge",
   "author": "Joseph Chalabi <chalabi@chandrastation.com>",
   "homepage": "https://github.com/chalabi2/gravity-bridgejs#readme",
@@ -44,6 +44,11 @@
   "devDependencies": {
     "@cosmology/telescope": "^1.0.1",
     "@protobufs/cosmos": "^0.1.0",
+    "@protobufs/cosmos_proto": "^0.0.10",
+    "@protobufs/gogoproto": "^0.0.10",
+    "@protobufs/google": "^0.0.10",
+    "@protobufs/ibc": "^0.1.0",
+    "@protobufs/tendermint": "^0.0.10",
     "@types/jest": "^29.5.0",
     "eslint": "8.45.0",
     "eslint-config-prettier": "^8.8.0",

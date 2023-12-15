@@ -1,6 +1,6 @@
-import { Any, AnySDKType } from "../../google/protobuf/any";
-import { Long, DeepPartial } from "../../helpers";
-import * as _m0 from "protobufjs/minimal";
+import { Any, AnyAmino, AnySDKType } from "../../google/protobuf/any";
+import { BinaryReader, BinaryWriter } from "../../binary";
+import { isSet } from "../../helpers";
 /**
  * ClaimType is the cosmos type of an event from the counterpart chain that can
  * be handled
@@ -21,6 +21,7 @@ export enum ClaimType {
   UNRECOGNIZED = -1,
 }
 export const ClaimTypeSDKType = ClaimType;
+export const ClaimTypeAmino = ClaimType;
 export function claimTypeFromJSON(object: any): ClaimType {
   switch (object) {
     case 0:
@@ -86,8 +87,39 @@ export function claimTypeToJSON(object: ClaimType): string {
 export interface Attestation {
   observed: boolean;
   votes: string[];
-  height: Long;
+  height: bigint;
   claim?: Any;
+}
+export interface AttestationProtoMsg {
+  typeUrl: "/gravity.v1.Attestation";
+  value: Uint8Array;
+}
+/**
+ * Attestation is an aggregate of `claims` that eventually becomes `observed` by
+ * all orchestrators
+ * EVENT_NONCE:
+ * EventNonce a nonce provided by the gravity contract that is unique per event fired
+ * These event nonces must be relayed in order. This is a correctness issue,
+ * if relaying out of order transaction replay attacks become possible
+ * OBSERVED:
+ * Observed indicates that >67% of validators have attested to the event,
+ * and that the event should be executed by the gravity state machine
+ * 
+ * The actual content of the claims is passed in with the transaction making the claim
+ * and then passed through the call stack alongside the attestation while it is processed
+ * the key in which the attestation is stored is keyed on the exact details of the claim
+ * but there is no reason to store those exact details becuause the next message sender
+ * will kindly provide you with them.
+ */
+export interface AttestationAmino {
+  observed?: boolean;
+  votes?: string[];
+  height?: string;
+  claim?: AnyAmino;
+}
+export interface AttestationAminoMsg {
+  type: "/gravity.v1.Attestation";
+  value: AttestationAmino;
 }
 /**
  * Attestation is an aggregate of `claims` that eventually becomes `observed` by
@@ -109,7 +141,7 @@ export interface Attestation {
 export interface AttestationSDKType {
   observed: boolean;
   votes: string[];
-  height: Long;
+  height: bigint;
   claim?: AnySDKType;
 }
 /**
@@ -122,6 +154,25 @@ export interface AttestationSDKType {
 export interface ERC20Token {
   contract: string;
   amount: string;
+}
+export interface ERC20TokenProtoMsg {
+  typeUrl: "/gravity.v1.ERC20Token";
+  value: Uint8Array;
+}
+/**
+ * ERC20Token unique identifier for an Ethereum ERC20 token.
+ * CONTRACT:
+ * The contract address on ETH of the token, this could be a Cosmos
+ * originated token, if so it will be the ERC20 address of the representation
+ * (note: developers should look up the token symbol using the address on ETH to display for UI)
+ */
+export interface ERC20TokenAmino {
+  contract?: string;
+  amount?: string;
+}
+export interface ERC20TokenAminoMsg {
+  type: "/gravity.v1.ERC20Token";
+  value: ERC20TokenAmino;
 }
 /**
  * ERC20Token unique identifier for an Ethereum ERC20 token.
@@ -141,6 +192,21 @@ export interface EventObservation {
   attestationId: string;
   nonce: string;
 }
+export interface EventObservationProtoMsg {
+  typeUrl: "/gravity.v1.EventObservation";
+  value: Uint8Array;
+}
+export interface EventObservationAmino {
+  attestation_type?: string;
+  bridge_contract?: string;
+  bridge_chain_id?: string;
+  attestation_id?: string;
+  nonce?: string;
+}
+export interface EventObservationAminoMsg {
+  type: "/gravity.v1.EventObservation";
+  value: EventObservationAmino;
+}
 export interface EventObservationSDKType {
   attestation_type: string;
   bridge_contract: string;
@@ -154,6 +220,20 @@ export interface EventInvalidSendToCosmosReceiver {
   token: string;
   sender: string;
 }
+export interface EventInvalidSendToCosmosReceiverProtoMsg {
+  typeUrl: "/gravity.v1.EventInvalidSendToCosmosReceiver";
+  value: Uint8Array;
+}
+export interface EventInvalidSendToCosmosReceiverAmino {
+  amount?: string;
+  nonce?: string;
+  token?: string;
+  sender?: string;
+}
+export interface EventInvalidSendToCosmosReceiverAminoMsg {
+  type: "/gravity.v1.EventInvalidSendToCosmosReceiver";
+  value: EventInvalidSendToCosmosReceiverAmino;
+}
 export interface EventInvalidSendToCosmosReceiverSDKType {
   amount: string;
   nonce: string;
@@ -165,6 +245,19 @@ export interface EventSendToCosmos {
   nonce: string;
   token: string;
 }
+export interface EventSendToCosmosProtoMsg {
+  typeUrl: "/gravity.v1.EventSendToCosmos";
+  value: Uint8Array;
+}
+export interface EventSendToCosmosAmino {
+  amount?: string;
+  nonce?: string;
+  token?: string;
+}
+export interface EventSendToCosmosAminoMsg {
+  type: "/gravity.v1.EventSendToCosmos";
+  value: EventSendToCosmosAmino;
+}
 export interface EventSendToCosmosSDKType {
   amount: string;
   nonce: string;
@@ -175,6 +268,20 @@ export interface EventSendToCosmosLocal {
   receiver: string;
   token: string;
   amount: string;
+}
+export interface EventSendToCosmosLocalProtoMsg {
+  typeUrl: "/gravity.v1.EventSendToCosmosLocal";
+  value: Uint8Array;
+}
+export interface EventSendToCosmosLocalAmino {
+  nonce?: string;
+  receiver?: string;
+  token?: string;
+  amount?: string;
+}
+export interface EventSendToCosmosLocalAminoMsg {
+  type: "/gravity.v1.EventSendToCosmosLocal";
+  value: EventSendToCosmosLocalAmino;
 }
 export interface EventSendToCosmosLocalSDKType {
   nonce: string;
@@ -188,6 +295,21 @@ export interface EventSendToCosmosPendingIbcAutoForward {
   token: string;
   amount: string;
   channel: string;
+}
+export interface EventSendToCosmosPendingIbcAutoForwardProtoMsg {
+  typeUrl: "/gravity.v1.EventSendToCosmosPendingIbcAutoForward";
+  value: Uint8Array;
+}
+export interface EventSendToCosmosPendingIbcAutoForwardAmino {
+  nonce?: string;
+  receiver?: string;
+  token?: string;
+  amount?: string;
+  channel?: string;
+}
+export interface EventSendToCosmosPendingIbcAutoForwardAminoMsg {
+  type: "/gravity.v1.EventSendToCosmosPendingIbcAutoForward";
+  value: EventSendToCosmosPendingIbcAutoForwardAmino;
 }
 export interface EventSendToCosmosPendingIbcAutoForwardSDKType {
   nonce: string;
@@ -205,6 +327,23 @@ export interface EventSendToCosmosExecutedIbcAutoForward {
   timeoutTime: string;
   timeoutHeight: string;
 }
+export interface EventSendToCosmosExecutedIbcAutoForwardProtoMsg {
+  typeUrl: "/gravity.v1.EventSendToCosmosExecutedIbcAutoForward";
+  value: Uint8Array;
+}
+export interface EventSendToCosmosExecutedIbcAutoForwardAmino {
+  nonce?: string;
+  receiver?: string;
+  token?: string;
+  amount?: string;
+  channel?: string;
+  timeout_time?: string;
+  timeout_height?: string;
+}
+export interface EventSendToCosmosExecutedIbcAutoForwardAminoMsg {
+  type: "/gravity.v1.EventSendToCosmosExecutedIbcAutoForward";
+  value: EventSendToCosmosExecutedIbcAutoForwardAmino;
+}
 export interface EventSendToCosmosExecutedIbcAutoForwardSDKType {
   nonce: string;
   receiver: string;
@@ -218,19 +357,20 @@ function createBaseAttestation(): Attestation {
   return {
     observed: false,
     votes: [],
-    height: Long.UZERO,
+    height: BigInt(0),
     claim: undefined
   };
 }
 export const Attestation = {
-  encode(message: Attestation, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+  typeUrl: "/gravity.v1.Attestation",
+  encode(message: Attestation, writer: BinaryWriter = BinaryWriter.create()): BinaryWriter {
     if (message.observed === true) {
       writer.uint32(8).bool(message.observed);
     }
     for (const v of message.votes) {
       writer.uint32(18).string(v!);
     }
-    if (!message.height.isZero()) {
+    if (message.height !== BigInt(0)) {
       writer.uint32(24).uint64(message.height);
     }
     if (message.claim !== undefined) {
@@ -238,8 +378,8 @@ export const Attestation = {
     }
     return writer;
   },
-  decode(input: _m0.Reader | Uint8Array, length?: number): Attestation {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+  decode(input: BinaryReader | Uint8Array, length?: number): Attestation {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseAttestation();
     while (reader.pos < end) {
@@ -252,7 +392,7 @@ export const Attestation = {
           message.votes.push(reader.string());
           break;
         case 3:
-          message.height = (reader.uint64() as Long);
+          message.height = reader.uint64();
           break;
         case 4:
           message.claim = Any.decode(reader, reader.uint32());
@@ -264,13 +404,74 @@ export const Attestation = {
     }
     return message;
   },
-  fromPartial(object: DeepPartial<Attestation>): Attestation {
+  fromJSON(object: any): Attestation {
+    return {
+      observed: isSet(object.observed) ? Boolean(object.observed) : false,
+      votes: Array.isArray(object?.votes) ? object.votes.map((e: any) => String(e)) : [],
+      height: isSet(object.height) ? BigInt(object.height.toString()) : BigInt(0),
+      claim: isSet(object.claim) ? Any.fromJSON(object.claim) : undefined
+    };
+  },
+  toJSON(message: Attestation): unknown {
+    const obj: any = {};
+    message.observed !== undefined && (obj.observed = message.observed);
+    if (message.votes) {
+      obj.votes = message.votes.map(e => e);
+    } else {
+      obj.votes = [];
+    }
+    message.height !== undefined && (obj.height = (message.height || BigInt(0)).toString());
+    message.claim !== undefined && (obj.claim = message.claim ? Any.toJSON(message.claim) : undefined);
+    return obj;
+  },
+  fromPartial(object: Partial<Attestation>): Attestation {
     const message = createBaseAttestation();
     message.observed = object.observed ?? false;
     message.votes = object.votes?.map(e => e) || [];
-    message.height = object.height !== undefined && object.height !== null ? Long.fromValue(object.height) : Long.UZERO;
+    message.height = object.height !== undefined && object.height !== null ? BigInt(object.height.toString()) : BigInt(0);
     message.claim = object.claim !== undefined && object.claim !== null ? Any.fromPartial(object.claim) : undefined;
     return message;
+  },
+  fromAmino(object: AttestationAmino): Attestation {
+    const message = createBaseAttestation();
+    if (object.observed !== undefined && object.observed !== null) {
+      message.observed = object.observed;
+    }
+    message.votes = object.votes?.map(e => e) || [];
+    if (object.height !== undefined && object.height !== null) {
+      message.height = BigInt(object.height);
+    }
+    if (object.claim !== undefined && object.claim !== null) {
+      message.claim = Any.fromAmino(object.claim);
+    }
+    return message;
+  },
+  toAmino(message: Attestation): AttestationAmino {
+    const obj: any = {};
+    obj.observed = message.observed;
+    if (message.votes) {
+      obj.votes = message.votes.map(e => e);
+    } else {
+      obj.votes = [];
+    }
+    obj.height = message.height ? message.height.toString() : undefined;
+    obj.claim = message.claim ? Any.toAmino(message.claim) : undefined;
+    return obj;
+  },
+  fromAminoMsg(object: AttestationAminoMsg): Attestation {
+    return Attestation.fromAmino(object.value);
+  },
+  fromProtoMsg(message: AttestationProtoMsg): Attestation {
+    return Attestation.decode(message.value);
+  },
+  toProto(message: Attestation): Uint8Array {
+    return Attestation.encode(message).finish();
+  },
+  toProtoMsg(message: Attestation): AttestationProtoMsg {
+    return {
+      typeUrl: "/gravity.v1.Attestation",
+      value: Attestation.encode(message).finish()
+    };
   }
 };
 function createBaseERC20Token(): ERC20Token {
@@ -280,7 +481,8 @@ function createBaseERC20Token(): ERC20Token {
   };
 }
 export const ERC20Token = {
-  encode(message: ERC20Token, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+  typeUrl: "/gravity.v1.ERC20Token",
+  encode(message: ERC20Token, writer: BinaryWriter = BinaryWriter.create()): BinaryWriter {
     if (message.contract !== "") {
       writer.uint32(10).string(message.contract);
     }
@@ -289,8 +491,8 @@ export const ERC20Token = {
     }
     return writer;
   },
-  decode(input: _m0.Reader | Uint8Array, length?: number): ERC20Token {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+  decode(input: BinaryReader | Uint8Array, length?: number): ERC20Token {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseERC20Token();
     while (reader.pos < end) {
@@ -309,11 +511,54 @@ export const ERC20Token = {
     }
     return message;
   },
-  fromPartial(object: DeepPartial<ERC20Token>): ERC20Token {
+  fromJSON(object: any): ERC20Token {
+    return {
+      contract: isSet(object.contract) ? String(object.contract) : "",
+      amount: isSet(object.amount) ? String(object.amount) : ""
+    };
+  },
+  toJSON(message: ERC20Token): unknown {
+    const obj: any = {};
+    message.contract !== undefined && (obj.contract = message.contract);
+    message.amount !== undefined && (obj.amount = message.amount);
+    return obj;
+  },
+  fromPartial(object: Partial<ERC20Token>): ERC20Token {
     const message = createBaseERC20Token();
     message.contract = object.contract ?? "";
     message.amount = object.amount ?? "";
     return message;
+  },
+  fromAmino(object: ERC20TokenAmino): ERC20Token {
+    const message = createBaseERC20Token();
+    if (object.contract !== undefined && object.contract !== null) {
+      message.contract = object.contract;
+    }
+    if (object.amount !== undefined && object.amount !== null) {
+      message.amount = object.amount;
+    }
+    return message;
+  },
+  toAmino(message: ERC20Token): ERC20TokenAmino {
+    const obj: any = {};
+    obj.contract = message.contract;
+    obj.amount = message.amount;
+    return obj;
+  },
+  fromAminoMsg(object: ERC20TokenAminoMsg): ERC20Token {
+    return ERC20Token.fromAmino(object.value);
+  },
+  fromProtoMsg(message: ERC20TokenProtoMsg): ERC20Token {
+    return ERC20Token.decode(message.value);
+  },
+  toProto(message: ERC20Token): Uint8Array {
+    return ERC20Token.encode(message).finish();
+  },
+  toProtoMsg(message: ERC20Token): ERC20TokenProtoMsg {
+    return {
+      typeUrl: "/gravity.v1.ERC20Token",
+      value: ERC20Token.encode(message).finish()
+    };
   }
 };
 function createBaseEventObservation(): EventObservation {
@@ -326,7 +571,8 @@ function createBaseEventObservation(): EventObservation {
   };
 }
 export const EventObservation = {
-  encode(message: EventObservation, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+  typeUrl: "/gravity.v1.EventObservation",
+  encode(message: EventObservation, writer: BinaryWriter = BinaryWriter.create()): BinaryWriter {
     if (message.attestationType !== "") {
       writer.uint32(10).string(message.attestationType);
     }
@@ -344,8 +590,8 @@ export const EventObservation = {
     }
     return writer;
   },
-  decode(input: _m0.Reader | Uint8Array, length?: number): EventObservation {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+  decode(input: BinaryReader | Uint8Array, length?: number): EventObservation {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseEventObservation();
     while (reader.pos < end) {
@@ -373,7 +619,25 @@ export const EventObservation = {
     }
     return message;
   },
-  fromPartial(object: DeepPartial<EventObservation>): EventObservation {
+  fromJSON(object: any): EventObservation {
+    return {
+      attestationType: isSet(object.attestationType) ? String(object.attestationType) : "",
+      bridgeContract: isSet(object.bridgeContract) ? String(object.bridgeContract) : "",
+      bridgeChainId: isSet(object.bridgeChainId) ? String(object.bridgeChainId) : "",
+      attestationId: isSet(object.attestationId) ? String(object.attestationId) : "",
+      nonce: isSet(object.nonce) ? String(object.nonce) : ""
+    };
+  },
+  toJSON(message: EventObservation): unknown {
+    const obj: any = {};
+    message.attestationType !== undefined && (obj.attestationType = message.attestationType);
+    message.bridgeContract !== undefined && (obj.bridgeContract = message.bridgeContract);
+    message.bridgeChainId !== undefined && (obj.bridgeChainId = message.bridgeChainId);
+    message.attestationId !== undefined && (obj.attestationId = message.attestationId);
+    message.nonce !== undefined && (obj.nonce = message.nonce);
+    return obj;
+  },
+  fromPartial(object: Partial<EventObservation>): EventObservation {
     const message = createBaseEventObservation();
     message.attestationType = object.attestationType ?? "";
     message.bridgeContract = object.bridgeContract ?? "";
@@ -381,6 +645,49 @@ export const EventObservation = {
     message.attestationId = object.attestationId ?? "";
     message.nonce = object.nonce ?? "";
     return message;
+  },
+  fromAmino(object: EventObservationAmino): EventObservation {
+    const message = createBaseEventObservation();
+    if (object.attestation_type !== undefined && object.attestation_type !== null) {
+      message.attestationType = object.attestation_type;
+    }
+    if (object.bridge_contract !== undefined && object.bridge_contract !== null) {
+      message.bridgeContract = object.bridge_contract;
+    }
+    if (object.bridge_chain_id !== undefined && object.bridge_chain_id !== null) {
+      message.bridgeChainId = object.bridge_chain_id;
+    }
+    if (object.attestation_id !== undefined && object.attestation_id !== null) {
+      message.attestationId = object.attestation_id;
+    }
+    if (object.nonce !== undefined && object.nonce !== null) {
+      message.nonce = object.nonce;
+    }
+    return message;
+  },
+  toAmino(message: EventObservation): EventObservationAmino {
+    const obj: any = {};
+    obj.attestation_type = message.attestationType;
+    obj.bridge_contract = message.bridgeContract;
+    obj.bridge_chain_id = message.bridgeChainId;
+    obj.attestation_id = message.attestationId;
+    obj.nonce = message.nonce;
+    return obj;
+  },
+  fromAminoMsg(object: EventObservationAminoMsg): EventObservation {
+    return EventObservation.fromAmino(object.value);
+  },
+  fromProtoMsg(message: EventObservationProtoMsg): EventObservation {
+    return EventObservation.decode(message.value);
+  },
+  toProto(message: EventObservation): Uint8Array {
+    return EventObservation.encode(message).finish();
+  },
+  toProtoMsg(message: EventObservation): EventObservationProtoMsg {
+    return {
+      typeUrl: "/gravity.v1.EventObservation",
+      value: EventObservation.encode(message).finish()
+    };
   }
 };
 function createBaseEventInvalidSendToCosmosReceiver(): EventInvalidSendToCosmosReceiver {
@@ -392,7 +699,8 @@ function createBaseEventInvalidSendToCosmosReceiver(): EventInvalidSendToCosmosR
   };
 }
 export const EventInvalidSendToCosmosReceiver = {
-  encode(message: EventInvalidSendToCosmosReceiver, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+  typeUrl: "/gravity.v1.EventInvalidSendToCosmosReceiver",
+  encode(message: EventInvalidSendToCosmosReceiver, writer: BinaryWriter = BinaryWriter.create()): BinaryWriter {
     if (message.amount !== "") {
       writer.uint32(10).string(message.amount);
     }
@@ -407,8 +715,8 @@ export const EventInvalidSendToCosmosReceiver = {
     }
     return writer;
   },
-  decode(input: _m0.Reader | Uint8Array, length?: number): EventInvalidSendToCosmosReceiver {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+  decode(input: BinaryReader | Uint8Array, length?: number): EventInvalidSendToCosmosReceiver {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseEventInvalidSendToCosmosReceiver();
     while (reader.pos < end) {
@@ -433,13 +741,68 @@ export const EventInvalidSendToCosmosReceiver = {
     }
     return message;
   },
-  fromPartial(object: DeepPartial<EventInvalidSendToCosmosReceiver>): EventInvalidSendToCosmosReceiver {
+  fromJSON(object: any): EventInvalidSendToCosmosReceiver {
+    return {
+      amount: isSet(object.amount) ? String(object.amount) : "",
+      nonce: isSet(object.nonce) ? String(object.nonce) : "",
+      token: isSet(object.token) ? String(object.token) : "",
+      sender: isSet(object.sender) ? String(object.sender) : ""
+    };
+  },
+  toJSON(message: EventInvalidSendToCosmosReceiver): unknown {
+    const obj: any = {};
+    message.amount !== undefined && (obj.amount = message.amount);
+    message.nonce !== undefined && (obj.nonce = message.nonce);
+    message.token !== undefined && (obj.token = message.token);
+    message.sender !== undefined && (obj.sender = message.sender);
+    return obj;
+  },
+  fromPartial(object: Partial<EventInvalidSendToCosmosReceiver>): EventInvalidSendToCosmosReceiver {
     const message = createBaseEventInvalidSendToCosmosReceiver();
     message.amount = object.amount ?? "";
     message.nonce = object.nonce ?? "";
     message.token = object.token ?? "";
     message.sender = object.sender ?? "";
     return message;
+  },
+  fromAmino(object: EventInvalidSendToCosmosReceiverAmino): EventInvalidSendToCosmosReceiver {
+    const message = createBaseEventInvalidSendToCosmosReceiver();
+    if (object.amount !== undefined && object.amount !== null) {
+      message.amount = object.amount;
+    }
+    if (object.nonce !== undefined && object.nonce !== null) {
+      message.nonce = object.nonce;
+    }
+    if (object.token !== undefined && object.token !== null) {
+      message.token = object.token;
+    }
+    if (object.sender !== undefined && object.sender !== null) {
+      message.sender = object.sender;
+    }
+    return message;
+  },
+  toAmino(message: EventInvalidSendToCosmosReceiver): EventInvalidSendToCosmosReceiverAmino {
+    const obj: any = {};
+    obj.amount = message.amount;
+    obj.nonce = message.nonce;
+    obj.token = message.token;
+    obj.sender = message.sender;
+    return obj;
+  },
+  fromAminoMsg(object: EventInvalidSendToCosmosReceiverAminoMsg): EventInvalidSendToCosmosReceiver {
+    return EventInvalidSendToCosmosReceiver.fromAmino(object.value);
+  },
+  fromProtoMsg(message: EventInvalidSendToCosmosReceiverProtoMsg): EventInvalidSendToCosmosReceiver {
+    return EventInvalidSendToCosmosReceiver.decode(message.value);
+  },
+  toProto(message: EventInvalidSendToCosmosReceiver): Uint8Array {
+    return EventInvalidSendToCosmosReceiver.encode(message).finish();
+  },
+  toProtoMsg(message: EventInvalidSendToCosmosReceiver): EventInvalidSendToCosmosReceiverProtoMsg {
+    return {
+      typeUrl: "/gravity.v1.EventInvalidSendToCosmosReceiver",
+      value: EventInvalidSendToCosmosReceiver.encode(message).finish()
+    };
   }
 };
 function createBaseEventSendToCosmos(): EventSendToCosmos {
@@ -450,7 +813,8 @@ function createBaseEventSendToCosmos(): EventSendToCosmos {
   };
 }
 export const EventSendToCosmos = {
-  encode(message: EventSendToCosmos, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+  typeUrl: "/gravity.v1.EventSendToCosmos",
+  encode(message: EventSendToCosmos, writer: BinaryWriter = BinaryWriter.create()): BinaryWriter {
     if (message.amount !== "") {
       writer.uint32(10).string(message.amount);
     }
@@ -462,8 +826,8 @@ export const EventSendToCosmos = {
     }
     return writer;
   },
-  decode(input: _m0.Reader | Uint8Array, length?: number): EventSendToCosmos {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+  decode(input: BinaryReader | Uint8Array, length?: number): EventSendToCosmos {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseEventSendToCosmos();
     while (reader.pos < end) {
@@ -485,12 +849,61 @@ export const EventSendToCosmos = {
     }
     return message;
   },
-  fromPartial(object: DeepPartial<EventSendToCosmos>): EventSendToCosmos {
+  fromJSON(object: any): EventSendToCosmos {
+    return {
+      amount: isSet(object.amount) ? String(object.amount) : "",
+      nonce: isSet(object.nonce) ? String(object.nonce) : "",
+      token: isSet(object.token) ? String(object.token) : ""
+    };
+  },
+  toJSON(message: EventSendToCosmos): unknown {
+    const obj: any = {};
+    message.amount !== undefined && (obj.amount = message.amount);
+    message.nonce !== undefined && (obj.nonce = message.nonce);
+    message.token !== undefined && (obj.token = message.token);
+    return obj;
+  },
+  fromPartial(object: Partial<EventSendToCosmos>): EventSendToCosmos {
     const message = createBaseEventSendToCosmos();
     message.amount = object.amount ?? "";
     message.nonce = object.nonce ?? "";
     message.token = object.token ?? "";
     return message;
+  },
+  fromAmino(object: EventSendToCosmosAmino): EventSendToCosmos {
+    const message = createBaseEventSendToCosmos();
+    if (object.amount !== undefined && object.amount !== null) {
+      message.amount = object.amount;
+    }
+    if (object.nonce !== undefined && object.nonce !== null) {
+      message.nonce = object.nonce;
+    }
+    if (object.token !== undefined && object.token !== null) {
+      message.token = object.token;
+    }
+    return message;
+  },
+  toAmino(message: EventSendToCosmos): EventSendToCosmosAmino {
+    const obj: any = {};
+    obj.amount = message.amount;
+    obj.nonce = message.nonce;
+    obj.token = message.token;
+    return obj;
+  },
+  fromAminoMsg(object: EventSendToCosmosAminoMsg): EventSendToCosmos {
+    return EventSendToCosmos.fromAmino(object.value);
+  },
+  fromProtoMsg(message: EventSendToCosmosProtoMsg): EventSendToCosmos {
+    return EventSendToCosmos.decode(message.value);
+  },
+  toProto(message: EventSendToCosmos): Uint8Array {
+    return EventSendToCosmos.encode(message).finish();
+  },
+  toProtoMsg(message: EventSendToCosmos): EventSendToCosmosProtoMsg {
+    return {
+      typeUrl: "/gravity.v1.EventSendToCosmos",
+      value: EventSendToCosmos.encode(message).finish()
+    };
   }
 };
 function createBaseEventSendToCosmosLocal(): EventSendToCosmosLocal {
@@ -502,7 +915,8 @@ function createBaseEventSendToCosmosLocal(): EventSendToCosmosLocal {
   };
 }
 export const EventSendToCosmosLocal = {
-  encode(message: EventSendToCosmosLocal, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+  typeUrl: "/gravity.v1.EventSendToCosmosLocal",
+  encode(message: EventSendToCosmosLocal, writer: BinaryWriter = BinaryWriter.create()): BinaryWriter {
     if (message.nonce !== "") {
       writer.uint32(10).string(message.nonce);
     }
@@ -517,8 +931,8 @@ export const EventSendToCosmosLocal = {
     }
     return writer;
   },
-  decode(input: _m0.Reader | Uint8Array, length?: number): EventSendToCosmosLocal {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+  decode(input: BinaryReader | Uint8Array, length?: number): EventSendToCosmosLocal {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseEventSendToCosmosLocal();
     while (reader.pos < end) {
@@ -543,13 +957,68 @@ export const EventSendToCosmosLocal = {
     }
     return message;
   },
-  fromPartial(object: DeepPartial<EventSendToCosmosLocal>): EventSendToCosmosLocal {
+  fromJSON(object: any): EventSendToCosmosLocal {
+    return {
+      nonce: isSet(object.nonce) ? String(object.nonce) : "",
+      receiver: isSet(object.receiver) ? String(object.receiver) : "",
+      token: isSet(object.token) ? String(object.token) : "",
+      amount: isSet(object.amount) ? String(object.amount) : ""
+    };
+  },
+  toJSON(message: EventSendToCosmosLocal): unknown {
+    const obj: any = {};
+    message.nonce !== undefined && (obj.nonce = message.nonce);
+    message.receiver !== undefined && (obj.receiver = message.receiver);
+    message.token !== undefined && (obj.token = message.token);
+    message.amount !== undefined && (obj.amount = message.amount);
+    return obj;
+  },
+  fromPartial(object: Partial<EventSendToCosmosLocal>): EventSendToCosmosLocal {
     const message = createBaseEventSendToCosmosLocal();
     message.nonce = object.nonce ?? "";
     message.receiver = object.receiver ?? "";
     message.token = object.token ?? "";
     message.amount = object.amount ?? "";
     return message;
+  },
+  fromAmino(object: EventSendToCosmosLocalAmino): EventSendToCosmosLocal {
+    const message = createBaseEventSendToCosmosLocal();
+    if (object.nonce !== undefined && object.nonce !== null) {
+      message.nonce = object.nonce;
+    }
+    if (object.receiver !== undefined && object.receiver !== null) {
+      message.receiver = object.receiver;
+    }
+    if (object.token !== undefined && object.token !== null) {
+      message.token = object.token;
+    }
+    if (object.amount !== undefined && object.amount !== null) {
+      message.amount = object.amount;
+    }
+    return message;
+  },
+  toAmino(message: EventSendToCosmosLocal): EventSendToCosmosLocalAmino {
+    const obj: any = {};
+    obj.nonce = message.nonce;
+    obj.receiver = message.receiver;
+    obj.token = message.token;
+    obj.amount = message.amount;
+    return obj;
+  },
+  fromAminoMsg(object: EventSendToCosmosLocalAminoMsg): EventSendToCosmosLocal {
+    return EventSendToCosmosLocal.fromAmino(object.value);
+  },
+  fromProtoMsg(message: EventSendToCosmosLocalProtoMsg): EventSendToCosmosLocal {
+    return EventSendToCosmosLocal.decode(message.value);
+  },
+  toProto(message: EventSendToCosmosLocal): Uint8Array {
+    return EventSendToCosmosLocal.encode(message).finish();
+  },
+  toProtoMsg(message: EventSendToCosmosLocal): EventSendToCosmosLocalProtoMsg {
+    return {
+      typeUrl: "/gravity.v1.EventSendToCosmosLocal",
+      value: EventSendToCosmosLocal.encode(message).finish()
+    };
   }
 };
 function createBaseEventSendToCosmosPendingIbcAutoForward(): EventSendToCosmosPendingIbcAutoForward {
@@ -562,7 +1031,8 @@ function createBaseEventSendToCosmosPendingIbcAutoForward(): EventSendToCosmosPe
   };
 }
 export const EventSendToCosmosPendingIbcAutoForward = {
-  encode(message: EventSendToCosmosPendingIbcAutoForward, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+  typeUrl: "/gravity.v1.EventSendToCosmosPendingIbcAutoForward",
+  encode(message: EventSendToCosmosPendingIbcAutoForward, writer: BinaryWriter = BinaryWriter.create()): BinaryWriter {
     if (message.nonce !== "") {
       writer.uint32(10).string(message.nonce);
     }
@@ -580,8 +1050,8 @@ export const EventSendToCosmosPendingIbcAutoForward = {
     }
     return writer;
   },
-  decode(input: _m0.Reader | Uint8Array, length?: number): EventSendToCosmosPendingIbcAutoForward {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+  decode(input: BinaryReader | Uint8Array, length?: number): EventSendToCosmosPendingIbcAutoForward {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseEventSendToCosmosPendingIbcAutoForward();
     while (reader.pos < end) {
@@ -609,7 +1079,25 @@ export const EventSendToCosmosPendingIbcAutoForward = {
     }
     return message;
   },
-  fromPartial(object: DeepPartial<EventSendToCosmosPendingIbcAutoForward>): EventSendToCosmosPendingIbcAutoForward {
+  fromJSON(object: any): EventSendToCosmosPendingIbcAutoForward {
+    return {
+      nonce: isSet(object.nonce) ? String(object.nonce) : "",
+      receiver: isSet(object.receiver) ? String(object.receiver) : "",
+      token: isSet(object.token) ? String(object.token) : "",
+      amount: isSet(object.amount) ? String(object.amount) : "",
+      channel: isSet(object.channel) ? String(object.channel) : ""
+    };
+  },
+  toJSON(message: EventSendToCosmosPendingIbcAutoForward): unknown {
+    const obj: any = {};
+    message.nonce !== undefined && (obj.nonce = message.nonce);
+    message.receiver !== undefined && (obj.receiver = message.receiver);
+    message.token !== undefined && (obj.token = message.token);
+    message.amount !== undefined && (obj.amount = message.amount);
+    message.channel !== undefined && (obj.channel = message.channel);
+    return obj;
+  },
+  fromPartial(object: Partial<EventSendToCosmosPendingIbcAutoForward>): EventSendToCosmosPendingIbcAutoForward {
     const message = createBaseEventSendToCosmosPendingIbcAutoForward();
     message.nonce = object.nonce ?? "";
     message.receiver = object.receiver ?? "";
@@ -617,6 +1105,49 @@ export const EventSendToCosmosPendingIbcAutoForward = {
     message.amount = object.amount ?? "";
     message.channel = object.channel ?? "";
     return message;
+  },
+  fromAmino(object: EventSendToCosmosPendingIbcAutoForwardAmino): EventSendToCosmosPendingIbcAutoForward {
+    const message = createBaseEventSendToCosmosPendingIbcAutoForward();
+    if (object.nonce !== undefined && object.nonce !== null) {
+      message.nonce = object.nonce;
+    }
+    if (object.receiver !== undefined && object.receiver !== null) {
+      message.receiver = object.receiver;
+    }
+    if (object.token !== undefined && object.token !== null) {
+      message.token = object.token;
+    }
+    if (object.amount !== undefined && object.amount !== null) {
+      message.amount = object.amount;
+    }
+    if (object.channel !== undefined && object.channel !== null) {
+      message.channel = object.channel;
+    }
+    return message;
+  },
+  toAmino(message: EventSendToCosmosPendingIbcAutoForward): EventSendToCosmosPendingIbcAutoForwardAmino {
+    const obj: any = {};
+    obj.nonce = message.nonce;
+    obj.receiver = message.receiver;
+    obj.token = message.token;
+    obj.amount = message.amount;
+    obj.channel = message.channel;
+    return obj;
+  },
+  fromAminoMsg(object: EventSendToCosmosPendingIbcAutoForwardAminoMsg): EventSendToCosmosPendingIbcAutoForward {
+    return EventSendToCosmosPendingIbcAutoForward.fromAmino(object.value);
+  },
+  fromProtoMsg(message: EventSendToCosmosPendingIbcAutoForwardProtoMsg): EventSendToCosmosPendingIbcAutoForward {
+    return EventSendToCosmosPendingIbcAutoForward.decode(message.value);
+  },
+  toProto(message: EventSendToCosmosPendingIbcAutoForward): Uint8Array {
+    return EventSendToCosmosPendingIbcAutoForward.encode(message).finish();
+  },
+  toProtoMsg(message: EventSendToCosmosPendingIbcAutoForward): EventSendToCosmosPendingIbcAutoForwardProtoMsg {
+    return {
+      typeUrl: "/gravity.v1.EventSendToCosmosPendingIbcAutoForward",
+      value: EventSendToCosmosPendingIbcAutoForward.encode(message).finish()
+    };
   }
 };
 function createBaseEventSendToCosmosExecutedIbcAutoForward(): EventSendToCosmosExecutedIbcAutoForward {
@@ -631,7 +1162,8 @@ function createBaseEventSendToCosmosExecutedIbcAutoForward(): EventSendToCosmosE
   };
 }
 export const EventSendToCosmosExecutedIbcAutoForward = {
-  encode(message: EventSendToCosmosExecutedIbcAutoForward, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+  typeUrl: "/gravity.v1.EventSendToCosmosExecutedIbcAutoForward",
+  encode(message: EventSendToCosmosExecutedIbcAutoForward, writer: BinaryWriter = BinaryWriter.create()): BinaryWriter {
     if (message.nonce !== "") {
       writer.uint32(10).string(message.nonce);
     }
@@ -655,8 +1187,8 @@ export const EventSendToCosmosExecutedIbcAutoForward = {
     }
     return writer;
   },
-  decode(input: _m0.Reader | Uint8Array, length?: number): EventSendToCosmosExecutedIbcAutoForward {
-    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+  decode(input: BinaryReader | Uint8Array, length?: number): EventSendToCosmosExecutedIbcAutoForward {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseEventSendToCosmosExecutedIbcAutoForward();
     while (reader.pos < end) {
@@ -690,7 +1222,29 @@ export const EventSendToCosmosExecutedIbcAutoForward = {
     }
     return message;
   },
-  fromPartial(object: DeepPartial<EventSendToCosmosExecutedIbcAutoForward>): EventSendToCosmosExecutedIbcAutoForward {
+  fromJSON(object: any): EventSendToCosmosExecutedIbcAutoForward {
+    return {
+      nonce: isSet(object.nonce) ? String(object.nonce) : "",
+      receiver: isSet(object.receiver) ? String(object.receiver) : "",
+      token: isSet(object.token) ? String(object.token) : "",
+      amount: isSet(object.amount) ? String(object.amount) : "",
+      channel: isSet(object.channel) ? String(object.channel) : "",
+      timeoutTime: isSet(object.timeoutTime) ? String(object.timeoutTime) : "",
+      timeoutHeight: isSet(object.timeoutHeight) ? String(object.timeoutHeight) : ""
+    };
+  },
+  toJSON(message: EventSendToCosmosExecutedIbcAutoForward): unknown {
+    const obj: any = {};
+    message.nonce !== undefined && (obj.nonce = message.nonce);
+    message.receiver !== undefined && (obj.receiver = message.receiver);
+    message.token !== undefined && (obj.token = message.token);
+    message.amount !== undefined && (obj.amount = message.amount);
+    message.channel !== undefined && (obj.channel = message.channel);
+    message.timeoutTime !== undefined && (obj.timeoutTime = message.timeoutTime);
+    message.timeoutHeight !== undefined && (obj.timeoutHeight = message.timeoutHeight);
+    return obj;
+  },
+  fromPartial(object: Partial<EventSendToCosmosExecutedIbcAutoForward>): EventSendToCosmosExecutedIbcAutoForward {
     const message = createBaseEventSendToCosmosExecutedIbcAutoForward();
     message.nonce = object.nonce ?? "";
     message.receiver = object.receiver ?? "";
@@ -700,5 +1254,56 @@ export const EventSendToCosmosExecutedIbcAutoForward = {
     message.timeoutTime = object.timeoutTime ?? "";
     message.timeoutHeight = object.timeoutHeight ?? "";
     return message;
+  },
+  fromAmino(object: EventSendToCosmosExecutedIbcAutoForwardAmino): EventSendToCosmosExecutedIbcAutoForward {
+    const message = createBaseEventSendToCosmosExecutedIbcAutoForward();
+    if (object.nonce !== undefined && object.nonce !== null) {
+      message.nonce = object.nonce;
+    }
+    if (object.receiver !== undefined && object.receiver !== null) {
+      message.receiver = object.receiver;
+    }
+    if (object.token !== undefined && object.token !== null) {
+      message.token = object.token;
+    }
+    if (object.amount !== undefined && object.amount !== null) {
+      message.amount = object.amount;
+    }
+    if (object.channel !== undefined && object.channel !== null) {
+      message.channel = object.channel;
+    }
+    if (object.timeout_time !== undefined && object.timeout_time !== null) {
+      message.timeoutTime = object.timeout_time;
+    }
+    if (object.timeout_height !== undefined && object.timeout_height !== null) {
+      message.timeoutHeight = object.timeout_height;
+    }
+    return message;
+  },
+  toAmino(message: EventSendToCosmosExecutedIbcAutoForward): EventSendToCosmosExecutedIbcAutoForwardAmino {
+    const obj: any = {};
+    obj.nonce = message.nonce;
+    obj.receiver = message.receiver;
+    obj.token = message.token;
+    obj.amount = message.amount;
+    obj.channel = message.channel;
+    obj.timeout_time = message.timeoutTime;
+    obj.timeout_height = message.timeoutHeight;
+    return obj;
+  },
+  fromAminoMsg(object: EventSendToCosmosExecutedIbcAutoForwardAminoMsg): EventSendToCosmosExecutedIbcAutoForward {
+    return EventSendToCosmosExecutedIbcAutoForward.fromAmino(object.value);
+  },
+  fromProtoMsg(message: EventSendToCosmosExecutedIbcAutoForwardProtoMsg): EventSendToCosmosExecutedIbcAutoForward {
+    return EventSendToCosmosExecutedIbcAutoForward.decode(message.value);
+  },
+  toProto(message: EventSendToCosmosExecutedIbcAutoForward): Uint8Array {
+    return EventSendToCosmosExecutedIbcAutoForward.encode(message).finish();
+  },
+  toProtoMsg(message: EventSendToCosmosExecutedIbcAutoForward): EventSendToCosmosExecutedIbcAutoForwardProtoMsg {
+    return {
+      typeUrl: "/gravity.v1.EventSendToCosmosExecutedIbcAutoForward",
+      value: EventSendToCosmosExecutedIbcAutoForward.encode(message).finish()
+    };
   }
 };

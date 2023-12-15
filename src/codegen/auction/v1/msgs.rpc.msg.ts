@@ -1,5 +1,5 @@
 import { Rpc } from "../../helpers";
-import * as _m0 from "protobufjs/minimal";
+import { BinaryReader } from "../../binary";
 import { MsgBid, MsgBidResponse } from "./msgs";
 /** Msg defines the state transitions possible within auction */
 export interface Msg {
@@ -14,6 +14,6 @@ export class MsgClientImpl implements Msg {
   bid(request: MsgBid): Promise<MsgBidResponse> {
     const data = MsgBid.encode(request).finish();
     const promise = this.rpc.request("auction.v1.Msg", "Bid", data);
-    return promise.then(data => MsgBidResponse.decode(new _m0.Reader(data)));
+    return promise.then(data => MsgBidResponse.decode(new BinaryReader(data)));
   }
 }

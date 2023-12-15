@@ -1,3 +1,4 @@
+//@ts-nocheck
 import { GeneratedType, Registry } from "@cosmjs/proto-signing";
 import { MsgBid } from "./msgs";
 export const registry: ReadonlyArray<[string, GeneratedType]> = [["/auction.v1.MsgBid", MsgBid]];
@@ -20,6 +21,22 @@ export const MessageComposer = {
       return {
         typeUrl: "/auction.v1.MsgBid",
         value
+      };
+    }
+  },
+  toJSON: {
+    bid(value: MsgBid) {
+      return {
+        typeUrl: "/auction.v1.MsgBid",
+        value: MsgBid.toJSON(value)
+      };
+    }
+  },
+  fromJSON: {
+    bid(value: any) {
+      return {
+        typeUrl: "/auction.v1.MsgBid",
+        value: MsgBid.fromJSON(value)
       };
     }
   },
